@@ -1,0 +1,4 @@
+.reasonix/
+~$*
+*.tmp
+node_modules/
