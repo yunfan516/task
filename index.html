@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fa">
+  <title>Sort Lab | 排序算法实验室</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Sort Lab 首页">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span>Sort<span class="brand-light">Lab</span></span>
+    </a>
+    <nav class="top-nav" aria-label="主导航">
+      <a class="active" href="#visualizer">可视化</a>
+      <a href="#benchmark">性能对比</a>
+      <a href="#reference">算法说明</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-heading" id="visualizer">
+      <div>
+        <h1>内部排序算法<span>可视化实验室</span></h1>
+        <p>观察数据如何移动，比较不同算法在不同输入下的表现。</p>
+      </div>
+    </section>
+
+    <section class="visual-workspace" aria-label="排序可视化工作区">
+      <section class="chart-panel">
+        <div class="chart-toolbar">
+          <label class="algorithm-select-label" for="algorithmSelect">算法</label>
+          <select id="algorithmSelect" aria-label="选择排序算法"></select>
+          <div class="chart-state"><span class="state-dot" id="stateDot"></span><span id="stateText">准备就绪</span></div>
+        </div>
+        <div class="chart-message" id="eventLabel">开始冒泡排序</div>
+        <div class="bar-chart" id="barChart" role="img" aria-label="待排序数据柱状图"></div>
+        <div class="bar-axis" id="barAxis"></div>
+        <div class="chart-foot"><span id="stepLabel">第 0 步</span><span class="array-size" id="arraySize">7 个元素</span></div>
+      </section>
+
+      <section class="code-panel" aria-label="排序算法 C 源码">
+        <div class="code-toolbar">
+          <span class="code-language">C</span>
+          <span class="code-file">sort_core.c</span>
+        </div>
+        <div class="code-current-line" id="codeCurrentLine" aria-live="polite">当前高亮行：1（开始冒泡排序）</div>
+        <div class="code-editor" id="codeEditor" aria-label="当前排序算法的 C 代码"></div>
+      </section>
+    </section>
+
+    <section class="controls-panel" aria-label="排序播放控制">
+      <div class="transport">
+        <button class="play-button" id="playBtn"><span class="play-symbol">▶</span><span id="playLabel">播放</span></button>
+        <button class="secondary-button" id="resetBtn"><span>↻</span> 重置</button>
+        <button class="secondary-button" id="stepBackBtn"><span>‹</span> 上一步</button>
+        <button class="secondary-button" id="stepBtn">下一步 <span>›</span></button>
+      </div>
+      <input class="progress-slider" id="progressSlider" type="range" min="0" max="0" value="0" aria-label="排序步骤进度">
+      <span class="step-count" id="stepCount">0/0</span>
+      <label class="speed-control"><span>速度</span><input id="speedSlider" type="range" min="1" max="5" value="3" aria-label="动画速度"><span id="speedValue">3</span></label>
+    </section>
+
+    <section class="experiment-row" aria-label="数据输入和排序统计">
+      <div class="data-controls">
+        <label class="input-label" for="arrayInput">数据</label>
+        <input id="arrayInput" type="text" value="38, 27, 43, 3, 9, 82, 10" aria-label="输入逗号分隔整数">
+        <button class="secondary-button" id="applyInputBtn">应用</button>
+        <button class="secondary-button dice-button" id="randomBtn" title="生成随机数据" aria-label="生成随机数据">⟳ 随机</button>
+      </div>
+      <div class="metrics-row" aria-label="排序统计">
+        <article class="metric"><div class="metric-label">关键字比较</div><div class="metric-value" id="compareCount">0</div></article>
+        <article class="metric"><div class="metric-label">元素移动</div><div class="metric-value" id="moveCount">0</div></article>
+        <article class="metric"><div class="metric-label">C 平均耗时</div><div class="metric-value"><span id="elapsedTime">0.000</span><small> ms</small></div></article>
+        <article class="metric"><div class="metric-label">稳定性</div><div class="metric-value stability-value" id="stabilityValue">—</div></article>
+      </div>
+    </section>
+
+    <section class="benchmark-section" id="benchmark">
+      <div class="section-heading">
+        <div><div class="panel-kicker">BENCHMARK</div><h2>性能对比</h2><p>在同一组数据副本上运行八种算法，比较耗时与操作次数。</p></div>
+        <div class="benchmark-options">
+          <label>规模<select id="sizeSelect"><option value="1000" selected>1,000</option><option value="5000">5,000</option><option value="10000">10,000</option><option value="50000">50,000</option><option value="100000">100,000</option></select></label>
+          <button class="primary-button" id="benchmarkBtn"><span>▶</span> 运行 8×4 对比</button>
+        </div>
+      </div>
+      <div class="benchmark-table-wrap">
+        <table class="benchmark-table">
+          <thead><tr><th>排序算法</th><th>稳定性</th><th>随机</th><th>正序</th><th>逆序</th><th>大量重复</th><th>比较 / 移动次数</th><th>校验</th></tr></thead>
+          <tbody id="benchmarkBody"><tr class="empty-row"><td colspan="8">运行 8 种算法 × 4 类输入的完整对比</td></tr></tbody>
+        </table>
+      </div>
+      <div class="benchmark-foot"><span class="foot-check">✓</span> 每种算法在同一分布下复用相同输入副本 · 时间由 C 高精度计时接口测量 · 二次复杂度算法在大规模输入时耗时会显著增加</div>
+    </section>
+
+    <section class="reference-section" id="reference">
+      <div class="section-heading reference-heading"><div><div class="panel-kicker">QUICK REFERENCE</div><h2>算法特性速查</h2></div><span class="muted">时间复杂度为平均情况，希尔排序随增量序列变化</span></div>
+      <div class="reference-grid" id="referenceGrid"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
