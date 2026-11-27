@@ -4,13 +4,29 @@
 
 本项目为《数据结构》课程设计（选题 58）。八种内部排序算法全部由 C 语言（`sort_core.c`）实现，并通过 Zig 编译为 WebAssembly 模块 `sort_core.wasm`，统一入口为 `void sort(int a[], int n)`（配合 `set_algorithm` 选择具体算法）。网页前端（HTML / CSS / JavaScript）仅负责界面展示与调用 WASM，不另行实现排序算法。
 
-## 核心功能（第 1–7 周整理）
+## 项目核心功能
 
 - 在 `sort_core.c` 中实现 **8 种内部排序算法**：直接插入、折半插入、希尔、冒泡、快速、简单选择、堆排序、归并排序。
 - 统一 `void sort(int a[], int n)` 调用入口与算法编号选择，覆盖空输入、单元素、非法编号与大规模边界检查（基准规模 `1,000 ~ 100,000`，动画上限 `n ≤ 50`）。
 - 统计关键字比较次数、元素移动次数与纯算法高精度耗时，并基于 `Record { key, id }` 结构验证相同关键字的稳定性。
 - 提供网页交互界面（`index.html`）与 Web Worker 后台 `8×4` 基准对比（`benchmark-worker.js`），支持随机、正序、逆序、大量重复键四类分布及随时停止。
 - 提供 `tests/test-cases.mjs` 自动化测试脚本（覆盖 `T1~T8` 共 8 类测试）与 `tests/benchmark-record.md` 多规模实测记录。
+
+## 工程目录结构
+
+```text
+.
+├── sort_core.c              # C 语言核心：8 种内部排序、操作计数、耗时与稳定性检测
+├── sort_core.wasm           # Zig C 编译生成的 WebAssembly 二进制模块
+├── build.bat                # 一键重新构建 sort_core.wasm 的脚本
+├── index.html               # 可视化与性能对比平台网页主入口
+├── styles.css               # 界面布局、动态柱状图与代码高亮样式
+├── app.js                   # WASM 加载、快照播放器与交互控制器（不含排序逻辑）
+├── benchmark-worker.js      # Web Worker 独立后台线程（8×4 异步性能矩阵与可停止控制）
+└── tests/
+    ├── test-cases.mjs       # CLI 自动化回归测试套件（T1~T8 + 多规模基准）
+    └── benchmark-record.md  # 五档规模实测、跨随机种子复现与快照代价记录
+```
 
 ## 统计口径说明
 
@@ -73,3 +89,11 @@ npx --yes http-server . -p 4173
 ```powershell
 zig cc -target wasm32-freestanding -O2 -nostdlib sort_core.c -Wl,--no-entry -Wl,--export-memory -Wl,--initial-memory=16777216 -Wl,--max-memory=16777216 -Wl,--strip-all -o sort_core.wasm
 ```
+
+## 答辩演示与验收流程
+
+1. **启动服务**：执行 `npx --yes http-server . -p 4173`，浏览器打开 `http://localhost:4173`，确认 WASM 模块加载就绪。
+2. **步进回放与源码联动**：选择冒泡排序或快速排序（`n ≤ 50`），演示播放、暂停、上一步回退、进度条跳转、倍速调节及右侧 `sort_core.c` 行同步高亮。
+3. **边界输入与稳定性核验**：输入正序、逆序或含重复元素的自定义序列，查看比较次数、移动次数、C 平均纯耗时与稳定性实测标签。
+4. **多规模矩阵压测与 CLI 复核**：在页面启动 `1,000 ~ 100,000` 规模的 `8×4` 性能对比（支持后台进度刷新与随时停止），并在终端运行 `node tests/test-cases.mjs 100000` 验证 `T1~T8` 全量通过。
+
